@@ -36,11 +36,22 @@ def forward_backward_prop(data, labels, params, dimensions):
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
     ### YOUR CODE HERE: forward propagation
-    raise NotImplementedError
+    net = sigmoid(data.dot(W1) + b1)  # M x H
+    probs = softmax(net.dot(W2) + b2) # M x Dy
+    cost = - np.sum(labels * np.log(probs)) # ()
+    # raise NotImplementedError
     ### END YOUR CODE
 
     ### YOUR CODE HERE: backward propagation
-    raise NotImplementedError
+    dscores = probs - labels # M x Dy
+    gradW2 = net.T.dot(dscores) # H x Dy
+    gradb2 = np.sum(dscores, axis=0, keepdims=True) # 1 x Dy
+    dnet = dscores.dot(W2.T) # M x H
+    dsigmoid = net * (1 - net) * dnet # M x H
+    gradW1 = data.T.dot(dsigmoid)
+    gradb1 = np.sum(dsigmoid, axis=0, keepdims=True)
+
+    # raise NotImplementedError
     ### END YOUR CODE
 
     ### Stack gradients (do not modify)
@@ -65,7 +76,7 @@ def sanity_check():
         labels[i, random.randint(0,dimensions[2]-1)] = 1
 
     params = np.random.randn((dimensions[0] + 1) * dimensions[1] + (
-        dimensions[1] + 1) * dimensions[2], )
+        dimensions[1] + 1) * dimensions[2] )
 
     gradcheck_naive(lambda params:
         forward_backward_prop(data, labels, params, dimensions), params)
@@ -79,11 +90,23 @@ def your_sanity_checks():
     your additional tests be graded.
     """
     print "Running your sanity checks..."
+    N = 20
+    dimensions = [10, 5, 10]
+    data = np.random.randn(N, dimensions[0])   # each row will be a datum
+    labels = np.zeros((N, dimensions[2]))
+    for i in xrange(N):
+        labels[i, random.randint(0,dimensions[2]-1)] = 1
+
+    params = np.random.randn((dimensions[0] + 1) * dimensions[1] + (
+        dimensions[1] + 1) * dimensions[2] )
+    gradcheck_naive(lambda params:
+        forward_backward_prop(data, labels, params, dimensions), params)
+    # print forward_backward_prop(data, labels, params, dimensions)
     ### YOUR CODE HERE
-    raise NotImplementedError
+    # raise NotImplementedError
     ### END YOUR CODE
 
 
 if __name__ == "__main__":
     sanity_check()
-    your_sanity_checks()
+    # your_sanity_checks()
