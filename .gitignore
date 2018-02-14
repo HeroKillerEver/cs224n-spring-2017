@@ -7,6 +7,7 @@ __pycache__/
 #data
 utils
 assignment2/data
+assignment3/data
 # model
 *.npy
 *.pyc
