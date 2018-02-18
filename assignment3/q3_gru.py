@@ -17,6 +17,7 @@ import tensorflow as tf
 import numpy as np
 
 import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from util import Progbar, minibatches
@@ -25,7 +26,7 @@ from model import Model
 from q3_gru_cell import GRUCell
 from q2_rnn_cell import RNNCell
 
-matplotlib.use('TkAgg')
+
 logger = logging.getLogger("hw3.q3")
 logger.setLevel(logging.DEBUG)
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
@@ -87,6 +88,8 @@ class SequencePredictor(Model):
 
         x = self.inputs_placeholder
         ### YOUR CODE HERE (~2-3 lines)
+        _, states = tf.nn.dynamic_rnn(cell, x, dtype=tf.float32)
+        preds = tf.nn.sigmoid(states)
         ### END YOUR CODE
 
         return preds #state # preds
@@ -108,7 +111,7 @@ class SequencePredictor(Model):
         y = self.labels_placeholder
 
         ### YOUR CODE HERE (~1-2 lines)
-
+        loss = tf.reduce_mean((preds - y)**2)
         ### END YOUR CODE
 
         return loss
@@ -146,7 +149,11 @@ class SequencePredictor(Model):
         # - Remember to clip gradients only if self.config.clip_gradients
         # is True.
         # - Remember to set self.grad_norm
-
+        grad, var = zip(*optimizer.compute_gradients(loss))
+        if self.config.clip_gradients:
+            grad, _ = tf.clip_by_global_norm( grad, self.config.max_grad_norm )
+        self.grad_norm = tf.global_norm(grad)
+        train_op = optimizer.apply_gradients(zip(grad, var))
         ### END YOUR CODE
 
         assert self.grad_norm is not None, "grad_norm was not set properly!"

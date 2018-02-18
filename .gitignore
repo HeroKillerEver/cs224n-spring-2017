@@ -8,6 +8,7 @@ __pycache__/
 utils
 assignment2/data
 assignment3/data
+assignment3/results
 # model
 *.npy
 *.pyc

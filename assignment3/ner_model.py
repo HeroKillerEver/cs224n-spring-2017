@@ -107,7 +107,8 @@ class NERModel(Model):
 			# Read the doc for utils.get_minibatches to find out how to use it.
 			# The general idea is to loop over minibatches from train_examples, and run train_on_batch inside the loop
             ### YOUR CODE HERE (2-3 lines)
-
+            for data in minibatches(train_examples, self.config.batch_size):
+                self.train_on_batch(sess, *data)
             ### END YOUR CODE
 
             logger.info("Evaluating on development data")
